@@ -19,6 +19,7 @@ async function getAIReply(message) {
     });
 
     const data = await response.json();
+    console.log("dify APIレスポンス:", data);
     return data.output || "AIの返事取得失敗";
   } catch (err) {
     console.error("Dify APIエラー:", err);
