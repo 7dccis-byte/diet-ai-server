@@ -1,0 +1,56 @@
+// server.js
+
+// ===== 設定部分 =====
+const DIFY_API_URL = "https://api.dify.ai/v1/chat-messages"; // Difyのチャット用API
+const DIFY_API_KEY = "app-mHPEJ5bDIhTQJMqIpkKMTqhW";           // 自分のコピーしたキー
+
+const SUPABASE_URL = "https://dhtwksdpavpvedtthuon.supabase.co
+";          // SupabaseのURL
+const SUPABASE_ANON_KEY = "sb_publishable_5mfTddygLPvmIwi5kDeF4w_zgi2L17D"; // Supabaseのanonキー
+
+// ===== 必要なライブラリ =====
+const fetch = require("node-fetch");       // HTTPリクエスト用
+const { createClient } = require("@supabase/supabase-js");
+
+// ===== Supabaseクライアント作成 =====
+const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+// ===== Dify にメッセージ送信 =====
+async function sendMessageToDify(userMessage) {
+    const res = await fetch(DIFY_API_URL, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${DIFY_API_KEY}`,
+        },
+        body: JSON.stringify({
+            messages: [{ role: "user", content: userMessage }]
+        }),
+    });
+    const data = await res.json();
+    return data;
+}
+
+// ===== Supabase からユーザー情報取得例 =====
+async function getUserData(userId) {
+    const { data, error } = await supabase
+        .from("users")
+        .select("*")
+        .eq("id", userId)
+        .single();
+
+    if (error) {
+        console.error(error);
+        return null;
+    }
+    return data;
+}
+
+// ===== テスト =====
+(async () => {
+    const userData = await getUserData(1); // 例：id=1のユーザー
+    console.log("ユーザー情報:", userData);
+
+    const aiResponse = await sendMessageToDify("こんにちは！");
+    console.log("AIからの返答:", aiResponse);
+})();
