@@ -1,8 +1,3 @@
-const express = require("express");
-const app = express();
-
-app.use(express.json());
-
 app.post("/webhook", async (req, res) => {
   try {
     const event = req.body.events?.[0];
@@ -11,8 +6,8 @@ app.post("/webhook", async (req, res) => {
     const userMessage = event.message.text;
     const userId = event.source.userId;
 
-    // ⚠️ テスト用：AIやDBを使わず固定返信
-    const aiReply = "テスト返信です";
+    // ⚠️ AIに返事を生成させる部分
+    const aiReply = await getAIReply(userMessage); // Dify APIを呼ぶ関数
 
     // LINEに返答
     const LINE_CHANNEL_ACCESS_TOKEN = process.env.LINE_CHANNEL_ACCESS_TOKEN;
@@ -34,6 +29,3 @@ app.post("/webhook", async (req, res) => {
     res.sendStatus(500);
   }
 });
-
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log("Server started on port " + PORT));
